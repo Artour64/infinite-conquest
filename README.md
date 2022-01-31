@@ -1,12 +1,15 @@
 # infinite conquest
-a 4x strategy with infinite map
+A 4x strategy with an infinite map
  - - - -
 ### Written in python with:
  - pygame for GUI
+ - numpy
 
  - - - -
 ### Files
  - main.py is the main file to run
 
 ### Features:
- - tbd
+ - Initial Map generation
+ - Gameplay: pending
+ - Continuous map generation: pending
