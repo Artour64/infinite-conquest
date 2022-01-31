@@ -1,7 +1,8 @@
 import random
 import math
+import render as r
 
-chunkSize=128
+chunkSize=16
 
 spawnX=4
 spawnY=4
@@ -16,6 +17,8 @@ empireSpawnMaxSizeFactor=2
 scaleFactor=4
 
 sightRange=5
+
+playerColor=0
 
 class Tile:
 	def __init__(self):
@@ -70,12 +73,23 @@ class World:
 		empDeck=[]
 		for c in range(spawnEmpires):
 			empDeck.append(c)
-			self.empires.append(Empire())
-			self.empires[c].id=c
+			empire=Empire()
+			self.empires.append(empire)
+			empire.id=c
 		for c in range(spawnsize-spawnEmpires):
 			empDeck.append(-1)
 		random.shuffle(empDeck)
 		self.empires[0].player=True
+		
+		empColor=list(range(len(r.empireColor)))
+		random.shuffle(empColor)
+		self.empires[0].color=playerColor
+		for c in range(1,len(self.empires)):
+			if empColor[c]==playerColor:
+				self.empires[c].color=empColor[0]
+			else:
+				self.empires[c].color=empColor[c]
+			
 		
 		for c in range(len(empDeck)):
 			emp=empDeck[c]
@@ -105,50 +119,53 @@ class World:
 						tile=self.grid[posx+x][posy+y]
 						tile.own=emp
 						tile.seen=True
-				self.empires[emp].capital=[posx+math.ceil(empLength/2),posy+math.ceil(empLength/2)]
-				tile=self.grid[posx+math.ceil(empLength/2)][posy+math.ceil(empLength/2)]
+				self.empires[emp].capital=[posx+math.floor(empLength/2),posy+math.floor(empLength/2)]
+				tile=self.grid[posx+math.floor(empLength/2)][posy+math.floor(empLength/2)]
 				tile.capital=True
 				empRemainSide=math.floor(empRemain/4)
 				empRemainSideRemain=empRemain%4
 				dev=0
-				remSide=-1
+				remSide=1
 				while empRemainSide>0:
-					tile=self.grid[posx-1][posy+math.ceil(empLength/2)+(dev*remSide)]
+					tile=self.grid[posx-1][posy+math.floor(empLength/2)+(dev*remSide)]
 					tile.own=emp
 					tile.seen=True
-					tile=self.grid[posx+1+empLength][posy+math.ceil(empLength/2)+(dev*remSide)]
+					tile=self.grid[posx+empLength][posy+math.floor(empLength/2)-(dev*remSide)]
 					tile.own=emp
 					tile.seen=True
-					tile=self.grid[posx+math.ceil(empLength/2)+(dev*remSide)][posy-1]
+					tile=self.grid[posx+math.floor(empLength/2)+(dev*remSide)][posy-1]
 					tile.own=emp
 					tile.seen=True
-					tile=self.grid[posx+math.ceil(empLength/2)+(dev*remSide)][posy+1+empLength]
+					tile=self.grid[posx+math.floor(empLength/2)-(dev*remSide)][posy+empLength]
 					tile.own=emp
 					tile.seen=True
 					
+					if remSide==1:
+						dev+=1
 					remSide*=-1
 					empRemainSide-=1
-					dev+=1
 					
+				
 				if empRemainSideRemain>0:
-					tile=self.grid[posx-1][posy+math.ceil(empLength/2)+(dev*remSide)]
+					tile=self.grid[posx-1][posy+math.floor(empLength/2)+(dev*remSide)]
 					tile.own=emp
 					tile.seen=True
 					empRemainSideRemain-=1
 				elif empRemainSideRemain>0:
-					tile=self.grid[posx+1+empLength][posy+math.ceil(empLength/2)+(dev*remSide)]
+					tile=self.grid[posx+empLength][posy+math.floor(empLength/2)-(dev*remSide)]
 					tile.own=emp
 					tile.seen=True
 					empRemainSideRemain-=1
 				elif empRemainSideRemain>0:
-					tile=self.grid[posx+math.ceil(empLength/2)+(dev*remSide)][posy-1]
+					tile=self.grid[posx+math.floor(empLength/2)+(dev*remSide)][posy-1]
 					tile.own=emp
 					tile.seen=True
 					empRemainSideRemain-=1
 				elif empRemainSideRemain>0:
-					tile=self.grid[posx+math.ceil(empLength/2)+(dev*remSide)][posy+1+empLength]
+					tile=self.grid[posx+math.floor(empLength/2)-(dev*remSide)][posy+empLength]
 					tile.own=emp
 					tile.seen=True
+				
 			
 			#todo:
 			elif empSize<chunkSize*chunkSize:#empire spawned fits in chunk but just barely
@@ -164,3 +181,4 @@ class Empire:
 		self.id=-1
 		self.units=[]
 		self.capital=[0,0]
+		self.color=0
