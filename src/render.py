@@ -151,7 +151,7 @@ def renderCordTile(t):
 	cord=np.add(to,cord)
 	if tile.own==-1:
 		pygame.draw.rect(screen, clrblack, pygame.Rect(cord[0], cord[1], tileSize, tileSize))
-	if tile.own==-2:#divided?
+	elif tile.own==-2:#divided?
 		pass
 	elif tile.capital:
 		pygame.draw.rect(screen, clrwhite, pygame.Rect(cord[0], cord[1], tileSize, tileSize))

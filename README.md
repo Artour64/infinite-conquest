@@ -1,4 +1,4 @@
-# infinite conquest
+# Infinite Conquest
 A 4x strategy with an infinite map
  - - - -
 ### Written in python with:
