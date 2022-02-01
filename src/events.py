@@ -1,5 +1,6 @@
 import pygame
 import render as r
+import auto as a
 running=True
 
 def event(event):
@@ -9,7 +10,7 @@ def event(event):
 	# key control
 	if event.type == pygame.KEYDOWN:
 		if event.key == pygame.K_SPACE:
-			pass
+			a.tick()
 		elif event.key == pygame.K_RETURN:
 			pass
 		

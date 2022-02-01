@@ -33,6 +33,20 @@ class Tile:
 		self.supertile=None
 		self.units=[]
 		
+		#turn dynamic variables
+		self.hasProduced=False
+		self.hasTransfered=False
+		
+		#self.visChange=False
+		
+		#self.transferToDist=0
+		
+	def addToEmpire(self,emp):
+		self.own=emp.id
+		if emp.player:
+			self.seen=True
+		emp.tiles.append(self)
+		
 class Unit:
 	def __init__(self):
 		self.scale=1
@@ -62,6 +76,10 @@ class World:
 		self.scale=1
 		self.empires=[]
 		self.units=[]
+	
+	def getTile(self,cord):
+		return self.grid[cord[0]][cord[1]]
+	
 	def init(self):
 		self.grid=[]
 		for x in range(chunkSize*spawnX):
@@ -76,6 +94,7 @@ class World:
 			empire=Empire()
 			self.empires.append(empire)
 			empire.id=c
+			empire.world=self
 		for c in range(spawnsize-spawnEmpires):
 			empDeck.append(-1)
 		random.shuffle(empDeck)
@@ -89,8 +108,7 @@ class World:
 				self.empires[c].color=empColor[0]
 			else:
 				self.empires[c].color=empColor[c]
-			
-		
+
 		for c in range(len(empDeck)):
 			emp=empDeck[c]
 			if emp==-1:
@@ -114,12 +132,12 @@ class World:
 			if empLength+2<=chunkSize:#empire spawned fits in chunk
 				posx=random.randint(0,chunkSize-(empLength+2))+1+chunkx
 				posy=random.randint(0,chunkSize-(empLength+2))+1+chunky
+				emp=self.empires[emp]
 				for x in range(empLength):
 					for y in range(empLength):
 						tile=self.grid[posx+x][posy+y]
-						tile.own=emp
-						tile.seen=True
-				self.empires[emp].capital=[posx+math.floor(empLength/2),posy+math.floor(empLength/2)]
+						tile.addToEmpire(emp)
+				emp.capital=[posx+math.floor(empLength/2),posy+math.floor(empLength/2)]
 				tile=self.grid[posx+math.floor(empLength/2)][posy+math.floor(empLength/2)]
 				tile.capital=True
 				empRemainSide=math.floor(empRemain/4)
@@ -128,17 +146,13 @@ class World:
 				remSide=1
 				while empRemainSide>0:
 					tile=self.grid[posx-1][posy+math.floor(empLength/2)+(dev*remSide)]
-					tile.own=emp
-					tile.seen=True
+					tile.addToEmpire(emp)
 					tile=self.grid[posx+empLength][posy+math.floor(empLength/2)-(dev*remSide)]
-					tile.own=emp
-					tile.seen=True
+					tile.addToEmpire(emp)
 					tile=self.grid[posx+math.floor(empLength/2)+(dev*remSide)][posy-1]
-					tile.own=emp
-					tile.seen=True
+					tile.addToEmpire(emp)
 					tile=self.grid[posx+math.floor(empLength/2)-(dev*remSide)][posy+empLength]
-					tile.own=emp
-					tile.seen=True
+					tile.addToEmpire(emp)
 					
 					if remSide==1:
 						dev+=1
@@ -148,23 +162,19 @@ class World:
 				
 				if empRemainSideRemain>0:
 					tile=self.grid[posx-1][posy+math.floor(empLength/2)+(dev*remSide)]
-					tile.own=emp
-					tile.seen=True
+					tile.addToEmpire(emp)
 					empRemainSideRemain-=1
 				elif empRemainSideRemain>0:
 					tile=self.grid[posx+empLength][posy+math.floor(empLength/2)-(dev*remSide)]
-					tile.own=emp
-					tile.seen=True
+					tile.addToEmpire(emp)
 					empRemainSideRemain-=1
 				elif empRemainSideRemain>0:
 					tile=self.grid[posx+math.floor(empLength/2)+(dev*remSide)][posy-1]
-					tile.own=emp
-					tile.seen=True
+					tile.addToEmpire(emp)
 					empRemainSideRemain-=1
 				elif empRemainSideRemain>0:
 					tile=self.grid[posx+math.floor(empLength/2)-(dev*remSide)][posy+empLength]
-					tile.own=emp
-					tile.seen=True
+					tile.addToEmpire(emp)
 				
 			
 			#todo:
@@ -182,3 +192,9 @@ class Empire:
 		self.units=[]
 		self.capital=[0,0]
 		self.color=0
+		self.tiles=[]
+		self.orders=[]
+		self.world=0
+	
+	def getStash(self):
+		return self.world.getTile(self.capital).resources

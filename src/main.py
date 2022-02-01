@@ -9,6 +9,9 @@ import render as r
 r.world=world
 r.renderInit()
 
+import auto as a
+a.world=world
+
 import events as ev
 while ev.running:
 	for event in pygame.event.get():

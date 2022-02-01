@@ -12,7 +12,7 @@ showGrid=False
 showGrid=True
 #'''
 
-tileSize=8
+tileSize=16
 tileTotal=tileSize
 if(showGrid):
 	tileTotal+=1
@@ -94,9 +94,9 @@ empireColor=[
 	(255,100,100),
 	(100,255,100),
 	(100,100,255),
-	(100,255,255),
-	(255,255,100),
-	(255,100,255)
+	#(100,255,255),
+	#(255,255,100)
+	#(255,100,255)
 ]
 
 def renderInit():
