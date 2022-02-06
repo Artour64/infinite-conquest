@@ -1,8 +1,9 @@
-#import world as w
+#!/usr/bin/python
+import random
 import render as r
 import numpy as np
 import pygame
-import random
+#import world as w
 
 claimTileCost=10
 
@@ -23,7 +24,8 @@ relCords=[
 def tick():
 	for c in world.empires:
 		empireTick(c)
-		print(c.getStash())
+		print(str(len(c.tiles))+":"+str(c.getStash()))
+	#print(world.empires[0].getStash())
 	print("-----")
 	r.renderTiles()
 	pygame.display.update()
@@ -55,30 +57,42 @@ def claimTile(tile,emp):
 		tile.resources-=claimTileCost
 		tile.addToEmpire(emp)
 
+	
 def autoStash(emp):
 	capCord=emp.capital
-	capTile=world.getTile(capCord)
-	autoTransferTile(capCord,capTile,emp)
+	#capTile=world.getTile(capCord)
+	
+	adjOwnedCords=adjacentOwnedCords(capCord,emp)
+	adjStashTo=[]
+	for c in adjOwnedCords:
+		adjStashTo.append(capCord)
+	while len(adjOwnedCords)>0:
+		adjStashTo2=[]
+		adjOwnedCords2=[]
+		for c in range(len(adjOwnedCords)):
+			adjacentEmptyCords=getTileAdjacentEmptyCords(adjOwnedCords[c],emp)
+			tile=world.getTile(adjOwnedCords[c])
+			if len(adjacentEmptyCords)==0:
+				transferTileResources(tile,world.getTile(adjStashTo[c]))
+				adj=adjacentOwnedCords(adjOwnedCords[c],emp)
+				for q in adj:
+					tile=world.getTile(q)
+					if not tile.hasTransfered:
+						if tile.order==-1:
+							isIn=False
+							for i in adjOwnedCords2:
+								if i[0]==q[0]:
+									if i[1]==q[1]:
+										isIn=True
+										break
+							if not isIn:
+								adjOwnedCords2.append(q)
+								adjStashTo2.append(adjOwnedCords[c])
+			else:
+				autoExpandTile(tile,adjacentEmptyCords,emp)
+		adjOwnedCords=adjOwnedCords2
+		adjStashTo=adjStashTo2
 
-def autoTransferTile(cord,stashToTile,emp):
-	tile=world.getTile(cord)
-	if tile.hasTransfered:
-		return
-	#if tile.resources==0:
-	#	return
-	if tile.order!=-1:
-		return
-	adjacentEmptyCords=getTileAdjacentEmptyCords(cord,emp)
-	if len(adjacentEmptyCords)==0:
-		transferTileResources(tile,stashToTile)
-		#recursive call
-		adjOwned=adjacentOwnedCords(cord,emp)
-		for c in adjOwned:
-			tile2=world.getTile(c)
-			if not tile2.hasTransfered:
-				autoTransferTile(c,tile,emp)
-	else:
-		autoExpandTile(tile,adjacentEmptyCords,emp)
 
 def manhatanDist(a,b):
 	return abs(a[0]-b[0])+abs(a[1]-b[1])
@@ -134,25 +148,6 @@ def empireTick(emp):
 	#tileProduce(capTile)
 
 	autoStash(emp)
-	'''
-	
-	
-	for c in adjacentOwnedCords(capCord,emp):
-		adjacentEmptyCords=getTileAdjacentEmptyCords(c,emp)
-		tile=world.getTile(c)
-		if len(adjacentEmptyCords)==0:
-			transferTileResources(tile,capTile)
-		else:#edge. grow
-			top=0;
-			tileAdjacentEmptyTop=world.getTile(adjacentEmptyCords[0])
-			for i in range(1,len(adjacentEmptyCords)):
-				tileAdjacentEmpty=world.getTile(adjacentEmptyCords[i])
-				if tileAdjacentEmpty.resources > tileAdjacentEmptyTop.resources:
-					#top=i
-					tileAdjacentEmptyTop=tileAdjacentEmpty
-			transferTileResources(tile,tileAdjacentEmptyTop)
-			claimTile(tileAdjacentEmptyTop,emp)
-	'''
 
 def getTileAdjacentEmptyCords(cord,emp):
 	cords=[]
@@ -172,6 +167,34 @@ def adjacentOwnedCords(cord,emp):
 			if tile.order==-1:#auto
 				cords.append(adj)
 	return cords
+
+
+#old, might scrap
+def autoStash2(emp):
+	capCord=emp.capital
+	capTile=world.getTile(capCord)
+	autoTransferTile(capCord,capTile,emp)
+
+#old, might scrap
+def autoTransferTile(cord,stashToTile,emp):
+	tile=world.getTile(cord)
+	if tile.hasTransfered:
+		return
+	#if tile.resources==0:
+	#	return
+	if tile.order!=-1:
+		return
+	adjacentEmptyCords=getTileAdjacentEmptyCords(cord,emp)
+	if len(adjacentEmptyCords)==0:
+		transferTileResources(tile,stashToTile)
+		#recursive call
+		adjOwned=adjacentOwnedCords(cord,emp)
+		for c in adjOwned:
+			tile2=world.getTile(c)
+			if not tile2.hasTransfered:
+				autoTransferTile(c,tile,emp)
+	else:
+		autoExpandTile(tile,adjacentEmptyCords,emp)
 
 #might scrap
 def tileTick(tile,emp):

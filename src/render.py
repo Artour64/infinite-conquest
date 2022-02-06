@@ -5,12 +5,7 @@ import numpy as np
 
 world=0#placeholder, set in main.py
 
-'''
 showGrid=True
-'''
-showGrid=False
-showGrid=True
-#'''
 
 tileSize=16
 tileTotal=tileSize
@@ -22,10 +17,11 @@ if(showGrid):
 #screen.blit(icon, (50, 50))
 
 #defaults as placeholders, set in renderInit() 
-#xGridTotal=w.worldX*tileTotal
-#yGridTotal=w.worldY*tileTotal
 xGridTotal=10*tileTotal
 yGridTotal=10*tileTotal
+
+visTilesX=16*4
+visTilesY=16*4
 
 '''
 sizebartop=50
@@ -63,7 +59,7 @@ clrblack=(0,0,0)
 bgcolor=(50,50,50)
 clrwhite=(255, 255, 255)
 
-clrGrid=bgcolor
+clrGrid=(10,10,10)
 
 
 empireColor=[
@@ -118,8 +114,8 @@ def renderInit():
 	#xGridTotal=100*tileTotal
 	#yGridTotal=60*tileTotal
 	
-	xGridTotal=16*4*tileTotal
-	yGridTotal=16*4*tileTotal
+	xGridTotal=visTilesX*tileTotal
+	yGridTotal=visTilesY*tileTotal
 	
 	wc=(sizebarleft,sizebartop)
 	if(showGrid):
